@@ -105,9 +105,37 @@ public class RouterServletTest {
 		Assert.assertTrue(result.equals(expected));
 	}
 	
+	@Test
+	public void testNoParams() throws Exception {
+
+		Server server = create((router) -> { 
+    		router.from("/api/service")
+    			.to(In.noParams(), Out.toJson())
+    			.execute((s) -> {
+    				
+    				Resposta r = new Resposta();
+    				if (s == null) {
+    					r.setMsg("OK");
+    				}
+    				return r;
+    				
+    			});
+
+        });
+		
+		String json = "{ \"name\": \"rafael\"}";
+		String expected = "{\"msg\":\"OK\"}";
+		
+		String result = post(server.getURI().toString() + "/servlet/api/service", json);
+		
+		server.stop();
+		
+		Assert.assertTrue(result.equals(expected));
+	}
+	
 	private Server create(Consumer<Router> call) throws Exception {
 		
-		Server server = new Server(8080);
+		Server server = new Server(8082);
 
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/context");

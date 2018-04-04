@@ -21,5 +21,9 @@ public class In {
 			}
 		};
 	}
+	
+	public static <T> Function<HttpServletRequest, T> noParams() {
+		return (req) -> { return null; };
+	}
 
 }
