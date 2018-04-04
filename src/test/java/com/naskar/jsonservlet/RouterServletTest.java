@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.function.Consumer;
 
+import javax.servlet.ServletConfig;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -40,7 +42,7 @@ public class RouterServletTest {
 		String json = "{ \"name\": \"rafael\"}";
 		String expected = "{\"msg\":\"rafael, Hello!\"}";
 		
-		String result = post(server.getURI().toString() + "api/service", json);
+		String result = post(server.getURI().toString() + "/servlet/api/service", json);
 		
 		server.stop();
 		
@@ -66,7 +68,7 @@ public class RouterServletTest {
 		String json = "{ \"name\": \"rafael\"}";
 		String expected = "{\"msg\":\"rafael, Hello: 1234\"}";
 		
-		String result = post(server.getURI().toString() + "api/service", json);
+		String result = post(server.getURI().toString() + "/servlet/api/service", json);
 		
 		server.stop();
 		
@@ -96,7 +98,7 @@ public class RouterServletTest {
 		String json = null;
 		String expected = "{\"msg\":\"null\"}";
 		
-		String result = post(server.getURI().toString() + "api/service", json);
+		String result = post(server.getURI().toString() + "/servlet/api/service", json);
 		
 		server.stop();
 		
@@ -108,10 +110,19 @@ public class RouterServletTest {
 		Server server = new Server(8080);
 
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
+        context.setContextPath("/context");
         server.setHandler(context);
  
-        context.addServlet(new ServletHolder(new RouterServlet(call)),"/*");
+        context.addServlet(new ServletHolder(new RouterServlet() {
+        	
+			private static final long serialVersionUID = 1L;
+
+			@Override
+        	protected void configure(ServletConfig config, Router router) {
+        		call.accept(router);
+        	}
+        	
+        }),"/servlet/*");
 		server.start();
 		
 		return server;
